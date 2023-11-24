@@ -1,12 +1,10 @@
-
-
-
-import os
 from flask import Flask, render_template
-from flask_sqlalchemy import  SQLAlchemy
+import click
+import os
+from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(app.root_path,'data.db')
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///C:/Users/白颢/Documents/白浩坤/学习资料/大三上/数据库系统概论/watchlist/data.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATION'] = False
 db = SQLAlchemy(app)
 
@@ -20,17 +18,13 @@ class Movie(db.Model):
     year = db.Column(db.String(4))
 
 
-import click
-
-
-
 @app.cli.command()
 @click.option('--drop',is_flag = True, help = 'Create after drop.')
 def initdb(drop):
     """Initialize the database."""
     if drop:
         db.drop_all()
-    db.create_all()
+        db.create_all()
     click.echo('Initialized database.')
 
 
@@ -60,9 +54,15 @@ def forge():
     db.session.commit()
     click.echo('Done.')
 
-
+@app.context_processor
+def inject_user():  # 函数名可以随意修改
+    user = User.query.first()
+    return dict(user=user)  # 需要返回字典，等同于 return {'user': user}
 @app.route('/')
 def index():
-    user = User.query.first()
     movies = Movie.query.all()
-    return render_template('index.html', name=user, movies=movies)
+    return render_template('index.html', movies=movies)
+
+@app.errorhandler(404)  # 传入要处理的错误代码
+def page_not_found(e):  # 接受异常对象作为参数
+    return render_template('404.html'), 404  # 返回模板和状态码
