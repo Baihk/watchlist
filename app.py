@@ -4,7 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask import request, url_for, redirect, flash
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import LoginManager, UserMixin
-from flask_login import login_user, login_required, current_user
+from flask_login import login_user, login_required, current_user, logout_user
 
 import os
 app = Flask(__name__)
@@ -145,7 +145,7 @@ def edit(movie_id):
         year = request.form['year']
 
         if not title or not year or len(year) != 4 or len(title) > 60:
-            flash('Invalid inp  ut.')
+            flash('Invalid input.')
             return redirect(url_for('edit', movie_id=movie_id))  # 重定向回对应的编辑页面
 
         movie.title = title  # 更新标题
